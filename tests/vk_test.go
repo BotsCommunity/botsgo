@@ -8,13 +8,12 @@ import (
 	"sync"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/botscommunity/botsgo"
+	"go.uber.org/zap"
 )
 
 type VKBot struct {
-	Client *botsgo.Client
+	Client *botsgo.Bot
 	Limit  int
 	mutex  sync.Mutex
 	time   time.Time
@@ -22,16 +21,16 @@ type VKBot struct {
 }
 
 func NewVKBot() *VKBot {
-	client, err := botsgo.NewClient("https://api.vk.com/method")
+	bot, err := botsgo.NewBot("https://api.vk.com/method")
 	if err != nil {
 		panic(err)
 	}
 
 	// Disable Logger
-	client.Logger = zap.NewNop()
+	bot.Logger = zap.NewNop()
 
 	return &VKBot{
-		Client: client,
+		Client: bot,
 		Limit:  20,
 	}
 }
@@ -91,7 +90,7 @@ func (bot *VKBot) GetUser(user User) UsersResponse {
 	bot.rps++
 	bot.mutex.Unlock()
 
-	if err := bot.Client.Call(botsgo.Call{
+	if err := bot.Client.Call(botsgo.CallOptions{
 		Method:   http.MethodPost,
 		Path:     path,
 		Body:     body,

@@ -15,14 +15,13 @@ import (
 	"go.uber.org/zap"
 )
 
-type Client struct {
-	Client *http.Client
-	API    string
-	Token  string
-	Logger *zap.Logger
+type Bot struct {
+	API        string
+	HTTPClient *http.Client
+	Logger     *zap.Logger
 }
 
-type Call struct {
+type CallOptions struct {
 	Method   string
 	Path     string
 	Body     []byte
@@ -35,43 +34,43 @@ type File struct {
 	Data  *os.File
 }
 
-func NewClient(apiURL string) (*Client, error) {
+func NewBot(apiURL string) (*Bot, error) {
 	logger, err := zap.NewProduction()
 	if err != nil {
 		return nil, err
 	}
 
-	return &Client{
-		Client: http.DefaultClient,
-		API:    apiURL,
-		Logger: logger,
+	return &Bot{
+		API:        apiURL,
+		HTTPClient: http.DefaultClient,
+		Logger:     logger,
 	}, err
 }
 
-func (c *Client) Call(options Call) error {
+func (bot *Bot) Call(options CallOptions) error {
 	var (
-		url          = c.API + "/" + options.Path
+		url          = bot.API + "/" + options.Path
 		request, err = http.NewRequestWithContext(context.Background(), options.Method, url, bytes.NewReader(options.Body))
 	)
 
 	if err != nil {
-		c.Logger.Error(fmt.Sprint("NewRequestWithContext error ", err.Error()))
+		bot.Logger.Error(fmt.Sprint("NewRequestWithContext error ", err.Error()))
 		return err
 	}
 
-	if err := c.multiPart(request, options.File); err != nil {
+	if err := bot.multiPart(request, options.File); err != nil {
 		return err
 	}
 
-	response, err := c.Client.Do(request)
+	response, err := bot.HTTPClient.Do(request)
 	if err != nil {
-		c.Logger.Error(fmt.Sprint("Do from Client error ", err.Error()))
+		bot.Logger.Error(fmt.Sprint("Do from Client error ", err.Error()))
 		return err
 	}
 
 	mediaType, _, err := mime.ParseMediaType(response.Header.Get("Content-Type"))
 	if err != nil {
-		c.Logger.Error(fmt.Sprint("ParseMediaType from mime error ", err.Error()))
+		bot.Logger.Error(fmt.Sprint("ParseMediaType from mime error ", err.Error()))
 		return err
 	}
 
@@ -81,30 +80,30 @@ func (c *Client) Call(options Call) error {
 		decoder.SetCustomStructTag("json")
 
 		if decodeErr := decoder.Decode(&options.Response); decodeErr != nil {
-			c.Logger.Error(fmt.Sprint("Decode from MessagePack error ", decodeErr.Error()))
+			bot.Logger.Error(fmt.Sprint("Decode from MessagePack error ", decodeErr.Error()))
 
 			if closeErr := response.Body.Close(); closeErr != nil {
-				c.Logger.Error(fmt.Sprint("CloseBody from HTP response error ", closeErr.Error()))
+				bot.Logger.Error(fmt.Sprint("CloseBody from HTP response error ", closeErr.Error()))
 				return closeErr
 			}
 		}
 	case "application/json":
 		if decodeErr := json.NewDecoder(response.Body).Decode(&options.Response); decodeErr != nil {
-			c.Logger.Error(fmt.Sprint("Decode from JSON error ", decodeErr.Error()))
+			bot.Logger.Error(fmt.Sprint("Decode from JSON error ", decodeErr.Error()))
 
 			if closeErr := response.Body.Close(); closeErr != nil {
-				c.Logger.Error(fmt.Sprint("CloseBody from HTTP response error  ", closeErr.Error()))
+				bot.Logger.Error(fmt.Sprint("CloseBody from HTTP response error  ", closeErr.Error()))
 				return closeErr
 			}
 		}
 	}
 
-	c.Logger.Info(fmt.Sprintf("Response from request %s, Body: %s, Response: %+v", url, string(options.Body), options.Response))
+	bot.Logger.Info(fmt.Sprintf("Response from request %s, Body: %s, Response: %+v", url, string(options.Body), options.Response))
 
 	return err
 }
 
-func (c *Client) multiPart(request *http.Request, file File) error {
+func (bot *Bot) multiPart(request *http.Request, file File) error {
 	if (File{}) != file {
 		var (
 			buffer    = &bytes.Buffer{}
@@ -113,18 +112,18 @@ func (c *Client) multiPart(request *http.Request, file File) error {
 
 		writer, err := newWriter.CreateFormFile(file.Field, file.Data.Name())
 		if err != nil {
-			c.Logger.Error(fmt.Sprint("CreateFormFile from multipart error ", err.Error()))
+			bot.Logger.Error(fmt.Sprint("CreateFormFile from multipart error ", err.Error()))
 			return err
 		}
 
 		_, err = io.Copy(writer, file.Data)
 		if err != nil {
-			c.Logger.Error(fmt.Sprint("Copy from io error ", err.Error()))
+			bot.Logger.Error(fmt.Sprint("Copy from io error ", err.Error()))
 			return err
 		}
 
 		if err := newWriter.Close(); err != nil {
-			c.Logger.Error(fmt.Sprint("Close from multipart error ", err.Error()))
+			bot.Logger.Error(fmt.Sprint("Close from multipart error ", err.Error()))
 			return err
 		}
 
