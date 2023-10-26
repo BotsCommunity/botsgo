@@ -1,0 +1,74 @@
+run:
+  timeout: 5m
+
+linters-settings:
+  depguard:
+    rules:
+      main:
+        allow:
+          - bytes
+          - context
+          - encoding/json
+          - io
+          - fmt
+          - sync
+          - time
+          - testing
+          - mime
+          - mime/multipart
+          - net/http
+          - net/url
+          - os
+          - go.uber.org/zap
+          - github.com/stretchr/testify
+          - github.com/botscommunity/botsgo
+          - github.com/vmihailenco/msgpack/v5
+  lll:
+    line-length: 200
+
+linters:
+  disable-all: true
+  enable:
+    - bodyclose
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - exportloopref
+    - funlen
+    - gocheckcompilerdirectives
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - gomnd
+    - goprintffuncname
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - lll
+    - misspell
+    - nakedret
+    - noctx
+    - nolintlint
+    - revive
+    - staticcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - whitespace
+    - asciicheck
+    - gochecknoglobals
+    - gocognit
+    - godot
+    - godox
+    - goerr113
+    - nestif
+    - prealloc
+    - testpackage
+    - wsl
