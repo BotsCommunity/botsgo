@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/botscommunity/botsgo"
 )
@@ -124,9 +125,5 @@ func (api *DiscordAPI) Call(method, path string, response any) error {
 	api.remainingLimit = remainingLimit
 	api.resetAfterTime = resetAfterTime
 
-	if err := res.Body.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return res.Body.Close()
 }

@@ -3,11 +3,12 @@ package tests
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap"
 	"net/http"
 	"net/url"
 	"sync"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/botscommunity/botsgo"
 )
@@ -114,9 +115,5 @@ func (api *VKAPI) Call(queryParams string, response any) error {
 		return err
 	}
 
-	if err := res.Body.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return res.Body.Close()
 }
