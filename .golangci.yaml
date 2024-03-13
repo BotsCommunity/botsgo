@@ -11,6 +11,7 @@ linters-settings:
           - errors
           - strconv
           - encoding/json
+          - reflect
           - io
           - fmt
           - sync
@@ -24,6 +25,7 @@ linters-settings:
           - go.uber.org/zap
           - github.com/stretchr/testify
           - github.com/botscommunity/botsgo
+          - github.com/botscommunity/botsgo/tests
           - github.com/vmihailenco/msgpack/v5
           - github.com/json-iterator/go
   lll:
