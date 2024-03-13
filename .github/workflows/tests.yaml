@@ -21,5 +21,8 @@ jobs:
           version: v1.54
       - name: Run tests
         env:
-          TOKEN: ${{ secrets.TOKEN }}
+          VK_TOKEN: ${{ secrets.TOKEN }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+          DISCORD_MESSAGE_ID: ${{ secrets.DISCORD_MESSAGE_ID }}
         run: go test -v ./...

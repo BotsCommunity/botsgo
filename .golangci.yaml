@@ -8,6 +8,8 @@ linters-settings:
         allow:
           - bytes
           - context
+          - errors
+          - strconv
           - encoding/json
           - io
           - fmt
@@ -23,6 +25,7 @@ linters-settings:
           - github.com/stretchr/testify
           - github.com/botscommunity/botsgo
           - github.com/vmihailenco/msgpack/v5
+          - github.com/json-iterator/go
   lll:
     line-length: 200
 
