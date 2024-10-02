@@ -99,7 +99,7 @@ func structField(typ reflect.StructField, val reflect.Value) (string, string) {
 				}
 			}
 		case "slice":
-			sliceField(tag, typ, val)
+			return sliceField(tag, typ, val)
 		case Struct:
 			numField := val.NumField()
 
